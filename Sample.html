@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="js/jquery-1.9.0.min.js" type="text/javascript"></script>
+    <script src="js/jquery.mobile-1.3.0-rc.1.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		var ParameterID,data;
+		ParameterID = 0;
+		$(function() {
+			//alert("first action");
+			getPage();
+		});
+	</script>
+    <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/jqm-demos.css">
+    <link rel="stylesheet" href="css/jquery.mobile-1.3.0-rc.1.css">
+</head>
+<body>
+
+<div data-role="page">
+
+    <div data-role="header" data-theme="f">
+        <h1>Responsive Mobile Client</h1>
+    </div><!-- /header -->
+    
+    <div data-role="content">
+    
+        <div data-demo-html="true">
+            <ul id="items" data-role="listview" data-inset="true">
+              <!-- dynamic items goes here. -->  
+            </ul>
+        </div><!--/demo-html -->
+    
+	
+		
+	
+	    <div>
+		<input type="button" id="btnNext" value="Next" onclick="javascript:alert('button Onclick')"/><input type="button" id="btnPrev" value="Previous" />
+		<input type="button" id="btnFirstPage" value="First" /><input type="button" id="btnLastPage" value="Last" />
+		</div>
+    </div><!-- /content -->
+    
+	
+	
+	<!--To create a popup, add the data-role="popup" attribute to a div with the popup contents-->
+	<div data-role="popup" id="popupDialog" data-overlay-theme="a" data-theme="c" style="max-width:400px;" class="ui-corner-all">
+			<div data-role="header" data-theme="a" class="ui-corner-top">
+				<h1>title</h1>
+			</div>
+			<div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+				<h3 class="ui-title">title</h3>
+				<p>text</p>
+				<a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">Close</a>    
+			</div>
+		</div>
+	<!--Then create a link with the href set to the id of the popup div, and add the attribute data-rel="popup" to tell the framework to open the popup when the link is tapped-->
+		<!--<a href="#dialog" data-rel="popup" data-position-to="window" data-transition="pop">Dialog</a>-->	
+    <div class="jqm-footer">
+        <p class="jqm-version"></p>
+        <p>&copy; 2010, 2013 jQuery Foundation and other contributors:</p>
+    </div><!-- /jqm-footer -->
+    
+</div><!-- /page -->   
+
+</body>
+<script language="javascript" type="text/javascript">
+//alert('Successful loading JSON');
+function getJSONData(pn) {
+	$.getJSON("favs.json", function(data) {
+		alert('Successful loading JSON');
+		var totalCount = data.length; // Total Record Number
+		data = data;
+		var pageSize = 2; // Record Number of each Page
+		var pageTotal = Math.ceil(totalCount / pageSize); // Total pages
+		var startPage = pageSize * (pn - 1);
+		var endPage = startPage + pageSize - 1;
+		var $ul = $("#items");
+		$ul.empty();
+		//for (var i = 0; i < pageSize; i++) {
+//			$ul.append('<li class="li-tag"></li>');
+//		}
+		var dataRoot = data;
+		var created_at,id,id_str,text,source;
+		var shtml='';
+		if (pageTotal == 1) {     // 当只有一页时
+			for (var j = 0; j < totalCount; j++) {
+				created_at = dataRoot[j].created_at;
+				id = dataRoot[j].id;
+				text = dataRoot[j].text;
+				source = dataRoot[j].source;
+				shtml=shtml+'<li onmouseover=\"this.style.cursor=\'hand\'; this.style.backgroundColor=\'#eeeeee\'\" onmouseout=\"this.style.cursor=\'normal\'; this.style.backgroundColor=\'#ffffff\'\">';
+				
+				<!--For situations like a dialog or lightbox where the popup should appear centered within the window instead of over the origin, add the data-position-to attribute to the link and specify a value of window-->
+				shtml=shtml+'<h3><a href=\"#popupDialog\" data-rel=\"popup\" data-position-to=\"window\" data-transition=\"pop\" onclick=\"javascript:passValToPopup('+j+');\"> created_at:'+created_at+'</a></h3>';
+				shtml=shtml+'<p>id:'+id+'</p>';
+				shtml=shtml+'<p> text:'+text+'</p>';
+				shtml=shtml+'</li>';
+				$('#items').append(shtml);
+				shtml='';
+			}
+		} else {
+			for (var j = startPage, k = 0; j < endPage, k < pageSize; j++, k++) {
+				if( j == totalCount){
+					break;       // 当遍历到最后一条记录时，跳出循环
+				}
+				created_at = dataRoot[j].created_at;
+				id = dataRoot[j].id;
+				text = dataRoot[j].text;
+				source = dataRoot[j].source;
+				shtml=shtml+'<li onmouseover=\"this.style.cursor=\'hand\'; this.style.backgroundColor=\'#eeeeee\'\" onmouseout=\"this.style.cursor=\'normal\'; this.style.backgroundColor=\'#ffffff\'\">';
+				shtml=shtml+'<h3><a href=\"#popupDialog\" data-rel=\"popup\" data-position-to=\"window\" data-transition=\"pop\" onclick=\"javascript:passValToPopup('+j+');\"> created_at:'+created_at+'</a></h3>';
+				shtml=shtml+'<p>id:'+id+'</p>';
+				shtml=shtml+'<p> text:'+text+'</p>';
+				shtml=shtml+'</li>';
+				$('#items').append(shtml);
+				shtml='';
+			}
+		}
+	})
+}
+function getPage() {
+	$.getJSON("favs.json", function(data) {
+		 		alert("getPage Called");
+				pn = 1;
+				var totalCount = data.length; // 总记录数
+				//alert("totalCount="+totalCount);
+				var pageSize = 2; // 每页显示几条记录
+				var pageTotal = Math.ceil(totalCount / pageSize); // 总页数
+				//alert("pageTotal=" +pageTotal);
+				$("#btnNext").click(function() {
+							if (pn == pageTotal) {
+								alert("No Next");
+								pn = pageTotal;
+							} else {
+								pn++;
+								gotoPage(pn);
+							}
+						});
+				$("#btnPrev").click(function() {
+							if (pn == 1) {
+								alert("No Prev");
+								pn = 1;
+							} else {
+								pn--;
+								gotoPage(pn);							}
+						})
+				$("#btnFirstPage").click(function() {
+							pn = 1;
+							//alert("sdsdsd");
+							gotoPage(pn);
+						});
+				$("#btnLastPage").click(function() {
+							pn = pageTotal;
+							gotoPage(pn);
+						});
+				$("#btnFirstPage").trigger("click");
+				$("#popupDialog").on('popupafteropen', function(event,ui){
+					// do whatever here
+						//first level
+						var first_level,second_level;
+						var shtml=''; 
+						first_level=data[ParameterID];
+						var created_at,id,id_str,text,source,truncated,in_reply_to_status_id;
+						var in_reply_to_status_id_str,in_reply_to_user_id,in_reply_to_user_id_str,in_reply_to_screen_name;
+						created_at = first_level.created_at;
+						id = first_level.id;
+						text = first_level.text;
+						source = first_level.source;
+						shtml=shtml+'<li>';
+						shtml=shtml+'<h3> created_at:'+created_at+'</h3></a>';
+						shtml=shtml+'<p>'+id+'</p>';
+						shtml=shtml+'<p> text:'+text+'</p>';
+						shtml=shtml+'</li>';
+						
+					    //second level
+						//$.each(first_level.user, function () {
+							second_level = first_level.user;	   
+							var name, friends_count, profile_image_url;	
+							name=second_level.name;
+							friends_count=second_level.friends_count;
+							profile_image_url=second_level.profile_image_url;   				
+							shtml=shtml+'<li><a href=\"#\">';
+							shtml=shtml+'<img src=\"'+profile_image_url+'\" />';
+							shtml=shtml+'<h3>name:'+name+'</h3>';
+							shtml=shtml+'<p> friends_count:'+friends_count+'</p></a>';
+							shtml=shtml+'<a href="#"></a>';
+							shtml=shtml+'</li>';
+							//third level
+							/*$.each(trending.tracking, function(){
+								tracking = this;
+								var timestamp, sequence, increment, count;
+				
+								timestamp = tracking.timestamp; 
+								sequence = tracking.sequence; 
+								increment = tracking.increment; 
+								count = tracking.count;               
+							});*///third level        
+						//});//second level
+						//first level
+						//alert(shtml);
+					//
+					var Dynhtml="";
+					Dynhtml = "<div data-role=\"header\" data-theme=\"a\" class=\"ui-corner-top\">";
+					Dynhtml += "<h1>title</h1>";
+					Dynhtml += "</div>";
+					Dynhtml += "<div data-role=\"content\" data-theme=\"d\" class=\"ui-corner-bottom ui-content\">";
+					Dynhtml += "<h3 class=\"ui-title\">title</h3>";
+					Dynhtml += "<p>" + shtml + "</p>";
+					Dynhtml += "<a href=\"#\" data-role=\"button\" data-inline=\"true\" data-rel=\"back\" data-theme=\"c\">Close</a> "   ;
+					Dynhtml += "</div>";
+					$(this).empty();
+					$(this).append(Dynhtml);
+				});		
+  })
+}
+function gotoPage(pn) {
+	alert("GoToPage Called");
+	 //alert(pn);
+	//$(".current-page").text(pn);
+	getJSONData(pn)
+}
+function passValToPopup(id)
+{
+	ParameterID=id;
+}
+</script>
+</html>
